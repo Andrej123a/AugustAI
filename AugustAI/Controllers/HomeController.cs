@@ -1,6 +1,7 @@
-using System.Diagnostics;
 using AugustAI.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace AugustAI.Controllers
 {
@@ -16,6 +17,31 @@ namespace AugustAI.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult IngredientsByCategory(IngredientCategory category)
+        {
+            var items = IngredientCatalog.Get(category);
+            return Json(items);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SubmitSelection(IngredientCategory category, string ingredientsJson)
+        {
+            var ingredients = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(ingredientsJson))
+            {
+                ingredients = JsonSerializer.Deserialize<List<string>>(ingredientsJson) ?? new List<string>();
+            }
+
+            TempData["Result"] = ingredients.Count == 0
+                ? $"Category: {category} | No ingredients selected."
+                : $"Category: {category} | Ingredients: {string.Join(", ", ingredients)}";
+
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Privacy()

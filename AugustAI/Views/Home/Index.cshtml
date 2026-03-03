@@ -1,9 +1,51 @@
-﻿@{
-    ViewData["Title"] = "Home";
+﻿@using AugustAI.Models
+@{
+    ViewData["Title"] = "Ingredient Selector";
 }
 
-<div class="text-center mt-5">
-    <h1 class="display-3 fw-bold">AugustAI</h1>
-    <p class="lead mt-3">Intelligent Culinary Assistant</p>
-    <p class="mt-4">Where culinary technique meets artificial intelligence.</p>
-</div>
+@if (TempData["Result"] is string msg)
+{
+    <div class="alert alert-success">@msg</div>
+}
+
+<h2>Ingredient Selector</h2>
+
+<form method="post" asp-controller="Home" asp-action="SubmitSelection">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label class="form-label">Category</label>
+        <select id="categorySelect" name="category" class="form-select">
+            @foreach (var c in Enum.GetValues<IngredientCategory>())
+            {
+                <option value="@c">@c</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ingredient</label>
+        <select id="ingredientSelect" class="form-select">
+            <option>Select a category first</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <div class="small text-muted">Selected:</div>
+        <div id="selectionPreview" class="fw-semibold">—</div>
+    </div>
+
+    <div class="mb-3">
+        <button type="button" id="addIngredientBtn" class="btn btn-success">Add Ingredient</button>
+        <button type="submit" class="btn btn-primary ms-2">Submit</button>
+        <button type="button" id="clearAllBtn" class="btn btn-outline-secondary ms-2">Clear All</button>
+    </div>
+
+    <ul id="ingredientList" class="list-group mb-3"></ul>
+
+    <input type="hidden" id="ingredientsJson" name="ingredientsJson" value="[]" />
+</form>
+
+@section Scripts {
+    <script src="~/js/ingredient-selector.js" asp-append-version="true"></script>
+}
